@@ -86,3 +86,27 @@ class CPU:
             self.jmp(operand_a, operand_b)
         else:
             self.pc += 2
+
+    def dispatch(self, IR, opA, opB):
+        self.branchtable[IR](opA, opB)
+
+    def load(self):
+        """Load a program into memory."""
+
+        if len(sys.argv) is not 2:
+            print(f"usage: {sys.argv[0]} <filename>")
+            sys.exit(1)
+        try:
+            address = 0
+            program_name = sys.argv[1]
+            with open(program_name) as f:
+                for line in f:
+                    num = line.split("#", 1)[0]
+                    if num.strip() == '':
+                        continue
+                    num = '0b' + num
+                    self.ram[address] = int(num, 2)
+                    address += 1
+        except FileNotFoundError:
+            print(f"{sys.argv[0]}: {sys.argv[1]} not found")
+            sys.exit(2)
