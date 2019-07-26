@@ -110,3 +110,48 @@ class CPU:
         except FileNotFoundError:
             print(f"{sys.argv[0]}: {sys.argv[1]} not found")
             sys.exit(2)
+
+    def ram_read(self, address):
+        return self.ram[address]
+
+    def ram_write(self, value, address):
+        self.ram[address] = value
+        pass
+
+    def alu(self, op, reg_a, reg_b):
+        """ALU operations."""
+
+        if op == "ADD":
+            self.register[reg_a] += self.register[reg_b]
+        elif op == "SUB":
+            self.register[reg_a] -= self.register[reg_b]
+        elif op == "MUL":
+            self.register[reg_a] *= self.register[reg_b]
+        elif op == "DIV":
+            self.register[reg_a] /= self.register[reg_b]
+        elif op == "CMP":
+            if self.register[reg_a] > self.register[reg_b]:
+                self.register[6] = 0b00000010
+                self.pc += 3
+            elif self.register[reg_a] < self.register[reg_b]:
+                self.register[6] = 0b00000100
+                self.pc += 3
+            elif self.register[reg_a] == self.register[reg_b]:
+                self.register[6] = 0b00000001
+                self.pc += 3
+        else:
+            raise Exception("Unsupported ALU operation")
+
+    def trace(self):
+        print(f"TRACE: %02X | %02X %02X %02X |" % (
+            self.pc,
+            # self.fl,
+            # self.ie,
+            self.ram_read(self.pc),
+            self.ram_read(self.pc + 1),
+            self.ram_read(self.pc + 2)
+        ), end='')
+
+        for i in range(8):
+            print(" %02X" % self.register[i], end='')
+        print()
