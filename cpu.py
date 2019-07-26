@@ -24,3 +24,65 @@ class CPU:
         self.branchtable[int(0b01010100)] = self.jmp
         self.branchtable[int(0b01010101)] = self.jeq
         self.branchtable[int(0b01010110)] = self.jne
+
+    def handle_ADD(self, operand_a, operand_b):
+        self.alu('ADD, operand_a, operand_b')
+        self.pc += 3
+
+    def handle_SUB(self, operand_a, operand_b):
+        self.alu("SUB", operand_a, operand_b)
+        self.pc += 3
+
+    def handle_MUL(self, operand_a, operand_b):
+        self.alu("MUL", operand_a, operand_b)
+        self.pc += 3
+
+    def handle_DIV(self, operand_a, operand_b):
+        self.alu("DIV", operand_a, operand_b)
+        self.pc += 3
+
+    def handle_CMP(self, operand_a, operand_b):
+        self.alu('CMP', operand_a, operand_b)
+
+    def handle_PRN(self, operand_a, operand_b):
+        print(f'{self.register[operand_a]}')
+        self.pc += 2
+
+    def handle_LDI(self, operand_a, operand_b):
+        self.register[operand_a] = operand_b
+        self.pc += 3
+
+    def sudo_push(self, operand_a, operand_b):
+        self.ram[self.register[7]] = self.register[operand_a]
+        self.register[7] -= 1
+        self.pc += 2
+
+    def sudo_pop(self, operand_a, operand_b):
+        self.register[7] += 1
+        self.register[operand_a] = self.ram[self.register[7]]
+        self.pc += 2
+
+    def call(self, operand_a, operand_b):
+        self.ram[self.register[7]] = self.pc + 2
+        self.register[7] -= 1
+        self.pc = self.register[operand_a]
+
+    def ret(self, operand_a, operand_b):
+        self.register[7] += 1
+        self.pc = self.ram[self.register[7]]
+
+    def jmp(self, operand_a, operand_b):
+        self.pc = self.register[operand_a]
+
+    def jeq(self, operand_a, operand_b):
+        if self.register[6] == 0b00000001:
+            self.jmp(operand_a, operand_b)
+        else:
+            self.pc += 2
+
+    def jne(self, operand_a, operand_b):
+        bit_wise_equality = self.register[6] & 0b00000001
+        if bit_wise_equality == 0:
+            self.jmp(operand_a, operand_b)
+        else:
+            self.pc += 2
